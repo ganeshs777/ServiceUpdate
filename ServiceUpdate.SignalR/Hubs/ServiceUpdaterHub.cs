@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using ServiceUpdate.Models.Models;
 
 namespace ServiceUpdate.SignalR.Hubs
 {

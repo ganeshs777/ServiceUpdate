@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using ServiceUpdate.Models.Models;
 
 namespace ServiceUpdateService
 {
@@ -7,7 +6,7 @@ namespace ServiceUpdateService
     {
         private readonly HubConnection _connection;
 
-        public event Action<ServiceUpdate.Models.Models.ServiceUpdate> UpdateServiceMessageReceived;
+        public event Action<ServiceUpdate.Models.Models.ServiceUpdate>? UpdateServiceMessageReceived;
 
         public SignalRServiceUpdaterService(HubConnection connection)
         {
