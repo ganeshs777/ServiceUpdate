@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using ServiceUpdateService;
 using System.Configuration;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ServiceUpdate.Client.Forms
 {
@@ -35,22 +36,29 @@ namespace ServiceUpdate.Client.Forms
             {
                 if (task.Exception != null)
                 {
-                    txtErrorInfo.Text = "Unable to connect to color chat hub";
-                    lblErrorInfo.Visible = true;
-                    txtErrorInfo.Visible = true;
+                    if (this.txtErrorInfo.InvokeRequired)
+                    {
+                        this.Invoke(() =>
+                        {
+                            txtErrorInfo.Text = "Unable to connect to Service Update Hub";
+                            lblErrorInfo.Visible = true;
+                            txtErrorInfo.Visible = true;
+                        });
+                    }
                 }
             });
-            lblErrorInfo.Visible = false;
-            txtErrorInfo.Visible = false;
         }
 
         private void SignalRServiceUpdaterService_UpdateServiceMessageReceived(ServiceUpdate.Models.Models.ServiceUpdate serviceUpdate)
         {
-            this.Visible = true;
-            this.WindowState = FormWindowState.Normal;
-            //txtServiceName.Text = "ServiceName : " + serviceUpdate.ServiceName + ", SetupFileLocation : " + serviceUpdate.SetupFileLocation;
-            txtServiceName.Text = serviceUpdate.ServiceName;
-            txtUpdateFileLocation.Text = serviceUpdate.SetupFileLocation;
+            this.Invoke(() =>
+            {
+                this.Visible = true;
+                this.WindowState = FormWindowState.Normal;
+                //txtServiceName.Text = "ServiceName : " + serviceUpdate.ServiceName + ", SetupFileLocation : " + serviceUpdate.SetupFileLocation;
+                txtServiceName.Text = serviceUpdate.ServiceName;
+                txtUpdateFileLocation.Text = serviceUpdate.SetupFileLocation;
+            });
         }
 
         private void btnInstall_Click(object sender, EventArgs e)

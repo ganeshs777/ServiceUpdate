@@ -20,8 +20,15 @@ namespace ServiceUpdate.Server
             }
             else
             {
-                lblError.Visible = true;
-                lblError.Text = "Missing ServiceUpdateNotifierUrl setting";
+                if(lblError.InvokeRequired )
+                {
+                    this.Invoke(() =>
+                    {
+                        lblError.Visible = true;
+                        lblError.Text = "Missing ServiceUpdateNotifierUrl setting";
+                    });
+                }
+                
             }
         }
 
@@ -39,8 +46,14 @@ namespace ServiceUpdate.Server
             }
             catch (Exception)
             {
-                lblError.Visible = true;
-                lblError.Text = "Unable to send update service message.";
+                if (lblError.InvokeRequired)
+                {
+                    this.Invoke(() =>
+                    {
+                        lblError.Visible = true;
+                        lblError.Text = "Unable to send update service message.";
+                    });
+                }
             }
         }
 
@@ -52,14 +65,26 @@ namespace ServiceUpdate.Server
             {
                 if (task.Exception != null)
                 {
-                    lblError.Text = "Unable to connect to color chat hub";
+                    if (lblError.InvokeRequired)
+                    {
+                        this.Invoke(() =>
+                        {
+                            lblError.Text = "Unable to connect to service update hub";
+                        });
+                    }
                 }
             });
         }
 
         private void SignalRServiceUpdaterService_UpdateServiceMessageReceived(ServiceUpdate.Models.Models.ServiceUpdate serviceUpdate)
         {
-            LabelServiceUpdateMessage.Text = "ServiceName : " + serviceUpdate.ServiceName + ", SetupFileLocation : " + serviceUpdate.SetupFileLocation;
+            if (LabelServiceUpdateMessage.InvokeRequired)
+            {
+                this.Invoke(() =>
+                {
+                    LabelServiceUpdateMessage.Text = "ServiceName : " + serviceUpdate.ServiceName + ", SetupFileLocation : " + serviceUpdate.SetupFileLocation;
+                });
+            }
         }
 
     }
