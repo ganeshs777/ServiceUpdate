@@ -6,12 +6,12 @@ namespace ServiceUpdate.Server
 {
     public partial class ServiceUpdateServer : Form
     {
-        SignalRServiceUpdaterService _SignalRServiceUpdaterService;
+        readonly SignalRServiceUpdaterService? _SignalRServiceUpdaterService;
         public ServiceUpdateServer()
         {
             InitializeComponent();
-            string hubURL = ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"];
-            if (ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"] != null)
+            string? hubURL = ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"];
+            if (hubURL != null)
             {
                 HubConnection connection = new HubConnectionBuilder()
                 .WithUrl(hubURL)
@@ -36,13 +36,21 @@ namespace ServiceUpdate.Server
         {
             try
             {
-                await _SignalRServiceUpdaterService.SendServiceUpdateMessage(new ServiceUpdate.Models.Models.ServiceUpdate()
+                if(_SignalRServiceUpdaterService != null)
                 {
-                    ServiceName = TextBoxServiceName.Text,
-                    SetupFileLocation = TextBoxSetupFilePath.Text
-                });
-
-                lblError.Text = string.Empty;
+                    await _SignalRServiceUpdaterService.SendServiceUpdateMessage(new ServiceUpdate.Models.Models.ServiceUpdate()
+                    {
+                        ServiceName = TextBoxServiceName.Text,
+                        SetupFileLocation = TextBoxSetupFilePath.Text
+                    });
+                }
+                if (lblError.InvokeRequired)
+                {
+                    this.Invoke(() =>
+                    {
+                        lblError.Text = string.Empty;
+                    });
+                }
             }
             catch (Exception)
             {
@@ -59,21 +67,24 @@ namespace ServiceUpdate.Server
 
         private void ServiceUpdateServer_Load(object sender, EventArgs e)
         {
-            _SignalRServiceUpdaterService.UpdateServiceMessageReceived += SignalRServiceUpdaterService_UpdateServiceMessageReceived;
-
-            _SignalRServiceUpdaterService.Connect().ContinueWith(task =>
+            if (_SignalRServiceUpdaterService != null)
             {
-                if (task.Exception != null)
+                _SignalRServiceUpdaterService.UpdateServiceMessageReceived += SignalRServiceUpdaterService_UpdateServiceMessageReceived;
+
+                _SignalRServiceUpdaterService.Connect().ContinueWith(task =>
                 {
-                    if (lblError.InvokeRequired)
+                    if (task.Exception != null)
                     {
-                        this.Invoke(() =>
+                        if (lblError.InvokeRequired)
                         {
-                            lblError.Text = "Unable to connect to service update hub";
-                        });
+                            this.Invoke(() =>
+                            {
+                                lblError.Text = "Unable to connect to service update hub";
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         private void SignalRServiceUpdaterService_UpdateServiceMessageReceived(ServiceUpdate.Models.Models.ServiceUpdate serviceUpdate)

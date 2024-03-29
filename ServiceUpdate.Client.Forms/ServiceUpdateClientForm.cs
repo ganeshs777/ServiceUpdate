@@ -1,20 +1,19 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using ServiceUpdateService;
 using System.Configuration;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ServiceUpdate.Client.Forms
 {
     public partial class ServiceUpdateClientForm : Form
     {
-        SignalRServiceUpdaterService _SignalRServiceUpdaterService;
+        readonly SignalRServiceUpdaterService? _SignalRServiceUpdaterService;
 
         public ServiceUpdateClientForm()
         {
             InitializeComponent();
 
-            string hubURL = ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"];
-            if (ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"] != null)
+            string? hubURL = ConfigurationManager.AppSettings["ServiceUpdateNotifierUrl"];
+            if (hubURL != null)
             {
                 HubConnection connection = new HubConnectionBuilder()
                 .WithUrl(hubURL)
@@ -29,24 +28,25 @@ namespace ServiceUpdate.Client.Forms
 
         private void ServiceUpdateClientForm_Load(object sender, EventArgs e)
         {
-            this.WindowState = FormWindowState.Minimized;
-            _SignalRServiceUpdaterService.UpdateServiceMessageReceived += SignalRServiceUpdaterService_UpdateServiceMessageReceived;
-
-            _SignalRServiceUpdaterService.Connect().ContinueWith(task =>
+            if (_SignalRServiceUpdaterService != null)
             {
-                if (task.Exception != null)
+                _SignalRServiceUpdaterService.UpdateServiceMessageReceived += SignalRServiceUpdaterService_UpdateServiceMessageReceived;
+                _SignalRServiceUpdaterService.Connect().ContinueWith(task =>
                 {
-                    if (this.txtErrorInfo.InvokeRequired)
+                    if (task.Exception != null)
                     {
-                        this.Invoke(() =>
+                        if (this.txtErrorInfo.InvokeRequired)
                         {
-                            txtErrorInfo.Text = "Unable to connect to Service Update Hub";
-                            lblErrorInfo.Visible = true;
-                            txtErrorInfo.Visible = true;
-                        });
+                            this.Invoke(() =>
+                            {
+                                txtErrorInfo.Text = "Unable to connect to Service Update Hub";
+                                lblErrorInfo.Visible = true;
+                                txtErrorInfo.Visible = true;
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         private void SignalRServiceUpdaterService_UpdateServiceMessageReceived(ServiceUpdate.Models.Models.ServiceUpdate serviceUpdate)
@@ -75,6 +75,11 @@ namespace ServiceUpdate.Client.Forms
         private void btnExit_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void ServiceUpdateClientForm_Shown(object sender, EventArgs e)
+        {
+            this.Visible = false;
         }
     }
 }

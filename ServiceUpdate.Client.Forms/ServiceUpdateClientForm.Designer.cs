@@ -52,6 +52,7 @@
             txtErrorInfo.Name = "txtErrorInfo";
             txtErrorInfo.Size = new Size(210, 21);
             txtErrorInfo.TabIndex = 3;
+            txtErrorInfo.Visible = false;
             // 
             // lblServicename
             // 
@@ -70,6 +71,7 @@
             lblErrorInfo.Size = new Size(59, 15);
             lblErrorInfo.TabIndex = 5;
             lblErrorInfo.Text = "Error Info";
+            lblErrorInfo.Visible = false;
             // 
             // btnInstall
             // 
@@ -122,7 +124,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.WhiteSmoke;
-            ClientSize = new Size(594, 95);
+            ClientSize = new Size(586, 87);
             ControlBox = false;
             Controls.Add(btnExit);
             Controls.Add(lblUpdateFileLocation);
@@ -141,6 +143,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Service Update Form";
             Load += ServiceUpdateClientForm_Load;
+            Shown += ServiceUpdateClientForm_Shown;
             ResumeLayout(false);
             PerformLayout();
         }
